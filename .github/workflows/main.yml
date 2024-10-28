@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+   yarn-web-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 查看nodejs版本
+        run: node -v 
+
+      - name: 查看yarn版本
+        run: npm -v
+        
+      - name: 安装依赖
+        run: |
+          npm install
+          
+      - name: 生成静态文件
+        run: |
+          npm run build

@@ -36,7 +36,7 @@ export async function getPeerSlat (id) {
     return
   }
   const scheme = location.protocol === 'https:' ? 'wss' : 'ws'
-  const ws = new Websock(`${scheme}://${addr}:21118`, true)
+  const ws = new Websock(`${scheme}://${addr}:8443/ws/id`, true)
   await ws.open()
   const conn_type = rendezvous.ConnType.DEFAULT_CONN
   const nat_type = rendezvous.NatType.SYMMETRIC
@@ -80,7 +80,7 @@ export async function getPeerSlat (id) {
     const uuid = rr.uuid
     console.log(new Date() + ': Connecting to relay server')
 
-    const _ws = new Websock(`${scheme}://${addr}:21119`, false)
+    const _ws = new Websock(`${scheme}://${addr}:8443/ws/relay`, false)
     await _ws.open()
     console.log(new Date() + ': Connected to relay server')
     const request_relay = rendezvous.RequestRelay.fromPartial({

@@ -3,13 +3,14 @@ import { current, login } from '@/api/user'
 import { setToken, removeToken, setCode, removeCode } from '@/utils/auth'
 import { useRouteStore } from '@/store/router'
 import { useAppStore } from '@/store/app'
-import { oidcAuth, oidcQuery } from '@/api/login';
+import { oidcAuth, oidcQuery } from '@/api/login'
 
 export const useUserStore = defineStore({
   id: 'user',
   state: () => ({
     nickname: '',
     username: '',
+    email: '',
     token: '',
     role: '',
     avatar: '',
@@ -17,7 +18,7 @@ export const useUserStore = defineStore({
   }),
 
   actions: {
-    logout() {
+    logout () {
       removeToken()
       removeCode()
       this.$patch({
@@ -26,7 +27,7 @@ export const useUserStore = defineStore({
       })
     },
 
-    saveUserData(userData) {
+    saveUserData (userData) {
       // useAppStore().getAppConfig()
       setToken(userData.token)
       //
@@ -39,7 +40,7 @@ export const useUserStore = defineStore({
       }
     },
 
-    async login(form) {
+    async login (form) {
       const res = await login(form).catch(_ => false)
       if (res) {
         useAppStore().getAppConfig()
@@ -50,7 +51,7 @@ export const useUserStore = defineStore({
         return false
       }
     },
-    async info() {
+    async info () {
       const res = await current().catch(_ => false)
       if (res) {
         useAppStore().getAppConfig()
@@ -64,7 +65,7 @@ export const useUserStore = defineStore({
       }
       return false
     },
-    async oidc(provider, platform, browser) {
+    async oidc (provider, platform, browser) {
       // oidc data need to be implement
       const data = {
         deviceInfo: {
@@ -74,8 +75,8 @@ export const useUserStore = defineStore({
         },
         id: `${platform}-${browser}`,
         op: provider, // 传入的 provider
-        uuid: crypto.randomUUID(), // 自动生成 UUID
-      };
+        uuid: '',//crypto.randomUUID(), // 自动生成 UUID
+      }
       const res = await oidcAuth(data).catch(_ => false)
       if (res) {
         const { code, url } = res.data
@@ -87,8 +88,8 @@ export const useUserStore = defineStore({
         }
       }
     },
-    async query(code) {
-      const params = { "code": code, "uuid": crypto.randomUUID(), "Id": "999" }
+    async query (code) {
+      const params = { 'code': code, uuid: '' }
       const res = await oidcQuery(params).catch(_ => false)
       if (res) {
         removeCode()
@@ -98,7 +99,7 @@ export const useUserStore = defineStore({
         return userData
       }
       return false
-    }
+    },
   },
 })
 

@@ -7,6 +7,10 @@
           <el-input v-model="form.username" class="login-input"></el-input>
         </el-form-item>
 
+        <el-form-item :label="T('Email')" prop="email">
+          <el-input v-model="form.email" class="login-input"></el-input>
+        </el-form-item>
+
         <el-form-item :label="T('Password')" prop="password">
           <el-input v-model="form.password" type="password" show-password
                     class="login-input"></el-input>
@@ -36,6 +40,7 @@
   const userStore = useUserStore()
   const form = reactive({
     username: '',
+    email: '',
     password: '',
     confirm_password: '',
   })
@@ -43,6 +48,9 @@
     username: [
       { required: true, message: T('ParamRequired', { param: T('Username') }), trigger: 'blur' },
     ],
+    // email: [
+    //   { required: true, message: T('ParamRequired', { param: T('Email') }), trigger: 'blur' },
+    // ],
     password: [
       { required: true, message: T('ParamRequired', { param: T('Password') }), trigger: 'blur' },
     ],

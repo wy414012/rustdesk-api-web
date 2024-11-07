@@ -96,12 +96,12 @@ const providerImageMap = {
   google: googleImage,
   github: githubImage,
   oidc: oidcImage,
-  webauth: webauthImage,
+  // WebAuth: webauthImage,
   default: defaultImage,
 };
 
 const getProviderImage = (provider) => {
-  return providerImageMap[provider] || providerImageMap.default;
+  return providerImageMap[provider.toLowerCase()] || providerImageMap.default;
 };
 
 const allowRegister = ref(false)

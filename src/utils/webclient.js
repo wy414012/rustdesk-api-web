@@ -6,30 +6,33 @@ import * as message from '@/utils/webclient/message'
 import { ElMessageBox } from 'element-plus'
 import { T } from '@/utils/i18n'
 
+const prefix = 'wc-'
+
 export const toWebClientLink = (row) => {
-  window.open(`${rustdeskConfig.value.api_server}/webclient/#/?id=${row.id}`)
+  //v2
+  window.open(`${rustdeskConfig.value.api_server}/webclient2/#/${row.id}`)
 }
 
-export function loadRustdeskConfig () {
-  const rustdeskConfig = ref({})
-  const fetchConfig = async () => {
+export const rustdeskConfig = ref({})
+
+export async function loadRustdeskConfig () {
+  console.log('loadRustdeskConfig')
+  if (rustdeskConfig.value.id_server === undefined || rustdeskConfig.value.key === undefined) {
     const res = await server().catch(_ => false)
     if (res) {
       rustdeskConfig.value = res.data
-      localStorage.setItem('custom-rendezvous-server', res.data.id_server)
-      localStorage.setItem('key', res.data.key)
-      localStorage.setItem('api-server', res.data.api_server)
+      localStorage.setItem(`${prefix}custom-rendezvous-server`, res.data.id_server)
+      localStorage.setItem(`${prefix}key`, res.data.key)
+      localStorage.setItem(`${prefix}api-server`, res.data.api_server)
     }
-  }
-  if (rustdeskConfig.value.id_server === undefined || rustdeskConfig.value.key === undefined) {
-    fetchConfig()
   }
   return {
     rustdeskConfig,
   }
 }
 
-export const { rustdeskConfig } = loadRustdeskConfig()
+loadRustdeskConfig()
+
 export async function getPeerSlat (id) {
   const [addr, port] = rustdeskConfig.value.id_server.split(':')
   if (!addr) {
@@ -106,4 +109,8 @@ export async function getPeerSlat (id) {
     return false
   }
 
+}
+
+export function getV2ShareUrl (token) {
+  return `${rustdeskConfig.value.api_server}/webclient2/#/?share_token=${token}`
 }

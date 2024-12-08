@@ -1,4 +1,4 @@
-import { onActivated, onMounted, reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
 import { create, list, remove, update } from '@/api/tag'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRoute } from 'vue-router'
@@ -106,12 +106,6 @@ export function useRepositories (is_my = 0) {
       getList()
     }
   }
-  onMounted(getList)
-  onActivated(getList)
-
-  watch(() => listQuery.page, getList)
-
-  watch(() => listQuery.page_size, handlerQuery)
 
   const formVisible = ref(false)
   const formData = reactive({

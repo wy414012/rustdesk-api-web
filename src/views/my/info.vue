@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card :title="T('Userinfo')" shadow="hover">
-      <el-form class="info-form" ref="form" label-width="120px" label-suffix="：" >
+      <el-form class="info-form" ref="form" label-width="120px" label-suffix="：">
         <el-form-item :label="T('Username')">
           <div>{{ userStore.username }}</div>
         </el-form-item>
@@ -31,7 +31,7 @@
       </el-form>
     </el-card>
     <el-card shadow="hover" style="margin-top: 20px">
-      <div v-html="appStore.setting.hello"></div>
+      <div v-html="html"></div>
     </el-card>
     <changePwdDialog v-model:visible="changePwdVisible"></changePwdDialog>
   </div>
@@ -39,13 +39,14 @@
 
 <script setup>
   import changePwdDialog from '@/components/changePwdDialog.vue'
-  import { ref } from 'vue'
+  import { computed, ref } from 'vue'
   import { useUserStore } from '@/store/user'
   import { useAppStore } from '@/store/app'
   import { bind, unbind } from '@/api/oauth'
   import { myOauth } from '@/api/user'
   import { ElMessageBox } from 'element-plus'
   import { T } from '@/utils/i18n'
+  import { marked } from 'marked'
 
   const appStore = useAppStore()
   const userStore = useUserStore()
@@ -63,7 +64,7 @@
   }
   getMyOauth()
   const toBind = async (row) => {
-    const res = await bind({ op: row.op}).catch(_ => false)
+    const res = await bind({ op: row.op }).catch(_ => false)
     if (res) {
       const { code, url } = res.data
       window.open(url)
@@ -84,6 +85,9 @@
     }
 
   }
+
+  const html = computed(_ => marked(appStore.setting.hello))
+
 </script>
 
 <style scoped lang="scss">

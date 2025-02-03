@@ -471,5 +471,41 @@
   },
   "Captcha": {
     "One": "Captcha"
+  },
+  "ServerCmd": {
+    "One": "Comando del servidor"
+  },
+  "Simple": {
+    "One": "Simple"
+  },
+  "Advanced": {
+    "One": "Avanzado"
+  },
+  "Available": {
+    "One": "Disponible"
+  },
+  "NotAvailable": {
+    "One": "No disponible"
+  },
+  "ServerCmdTips": {
+    "One": "Esta función es experimental. Asegúrese de que la API y hbbs y hbbr estén en la misma dirección de bucle de retorno. Para obtener más información, consulte el {wiki}"
+  },
+  "Refresh": {
+    "One": "Actualizar"
+  },
+  "Save": {
+    "One": "Guardar"
+  },
+  "SendCustom": {
+    "One": "Enviar personalizado"
+  },
+  "Send": {
+    "One": "Enviar"
+  },
+  "SendCmd": {
+    "One": "Enviar comando"
+  },
+  "Result": {
+    "One": "Resultado"
   }
 }

@@ -1,14 +1,14 @@
 <template>
   <div>
     <el-card class="list-query" shadow="hover">
-      <el-form inline label-width="150px">
+      <el-form inline label-width="60px">
         <el-form-item label="ID">
           <el-input v-model="listQuery.id" clearable/>
         </el-form-item>
         <el-form-item :label="T('Hostname')">
           <el-input v-model="listQuery.hostname" clearable/>
         </el-form-item>
-        <el-form-item :label="T('LastOnlineTime')">
+        <el-form-item :label="T('LastOnlineTime')" label-width="100px">
           <el-select v-model="listQuery.time_ago" clearable>
             <el-option
                 v-for="item in timeFilters"
@@ -19,10 +19,45 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item :label="T('Username')">
+          <el-input v-model="listQuery.username" clearable/>
+        </el-form-item>
+        <el-form-item label="IP">
+          <el-input v-model="listQuery.ip" clearable/>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handlerQuery">{{ T('Filter') }}</el-button>
           <el-button type="danger" @click="toAdd">{{ T('Add') }}</el-button>
           <el-button type="success" @click="toExport">{{ T('Export') }}</el-button>
+          <el-popover :visible="showImport" placement="bottom" :width="600">
+            <el-upload
+                class="upload-demo"
+                drag
+                accept=".csv"
+                :before-upload="parseCsv"
+            >
+              <el-icon class="el-icon--upload">
+                <upload-filled/>
+              </el-icon>
+              <div class="el-upload__text">
+                Drop file here or <em>click to upload</em>
+              </div>
+              <template #tip>
+                <div class="el-upload__tip">
+                  please upload csv file <br>
+                  columns: <span style="font-weight: bold;font-size: 15px">id,cpu,hostname,memory,os,username,uuid,version,group_id</span>
+                  <br>
+                  <span>you can see export file</span>
+                </div>
+
+              </template>
+
+            </el-upload>
+            <el-button @click="showImport=false" type="primary">{{ T('Cancel') }}</el-button>
+            <template #reference>
+              <el-button @click="showImport=true" type="danger">{{ T('Import') }}</el-button>
+            </template>
+          </el-popover>
           <el-button type="danger" @click="toBatchDelete">{{ T('BatchDelete') }}</el-button>
           <el-button type="primary" @click="toBatchAddToAB">{{ T('BatchAddToAB') }}</el-button>
         </el-form-item>
@@ -49,6 +84,12 @@
         </el-table-column>
         <el-table-column prop="last_online_ip" :label="T('LastOnlineIp')" align="center" min-width="120"/>
         <el-table-column prop="username" :label="T('Username')" align="center" width="120"/>
+        <el-table-column prop="group_id" :label="T('Group')" align="center" width="120">
+          <template #default="{row}">
+            <span v-if="row.group_id"> <el-tag>{{ groupListRes.list?.find(g => g.id === row.group_id)?.name }} </el-tag> </span>
+            <span v-else> - </span>
+          </template>
+        </el-table-column>
         <el-table-column prop="uuid" :label="T('Uuid')" align="center" width="120" show-overflow-tooltip/>
         <el-table-column prop="version" :label="T('Version')" align="center" width="80"/>
         <el-table-column prop="created_at" :label="T('CreatedAt')" align="center" width="150"/>
@@ -77,6 +118,16 @@
       <el-form class="dialog-form" ref="form" :model="formData" label-width="120px">
         <el-form-item label="ID" prop="id" required>
           <el-input v-model="formData.id"></el-input>
+        </el-form-item>
+        <el-form-item :label="T('Group')" prop="group_id">
+          <el-select v-model="formData.group_id">
+            <el-option
+                v-for="item in groupListRes.list"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item :label="T('Username')" prop="username">
           <el-input v-model="formData.username"></el-input>
@@ -151,6 +202,7 @@
 <script setup>
   import { computed, onActivated, onMounted, reactive, ref, watch } from 'vue'
   import { batchRemove, create, list, remove, update } from '@/api/peer'
+  import { list as groupList } from '@/api/device_group'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { toWebClientLink } from '@/utils/webclient'
   import { T } from '@/utils/i18n'
@@ -164,8 +216,30 @@
   import { batchCreateFromPeers } from '@/api/address_book'
   import { useRepositories as useCollectionRepositories } from '@/views/address_book/collection'
   import createABForm from '@/views/peer/createABForm.vue'
+  import { UploadFilled } from '@element-plus/icons-vue'
 
   const appStore = useAppStore()
+
+  //group
+  const groupListRes = reactive({
+    list: [], total: 0, loading: false,
+  })
+  const groupListQuery = reactive({
+    page: 1,
+    page_size: 999,
+  })
+  const getGroupList = async () => {
+    groupListRes.loading = true
+    const res = await groupList(groupListQuery).catch(_ => false)
+    groupListRes.loading = false
+    if (res) {
+      groupListRes.list = res.data.list
+      groupListRes.total = res.data.total
+    }
+  }
+  onMounted(getGroupList)
+  //
+
   const listRes = reactive({
     list: [], total: 0, loading: false,
   })
@@ -175,6 +249,8 @@
     time_ago: null,
     id: '',
     hostname: '',
+    username: '',
+    ip: '',
   })
 
   const getList = async () => {
@@ -220,6 +296,7 @@
   const formVisible = ref(false)
   const formData = reactive({
     row_id: 0,
+    group_id: null,
     cpu: '',
     hostname: '',
     id: '',
@@ -293,6 +370,54 @@
       const csv = jsonToCsv(data)
       downBlob(csv, 'peers.csv')
     }
+  }
+
+  const showImport = ref(false)
+  const canKeys = ['id', 'cpu', 'hostname', 'memory', 'os', 'username', 'uuid', 'version', 'group_id']
+  const parseCsv = (file) => {
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      const data = e.target.result
+      console.log(data)
+      //组装数据
+      const rows = data.split('\n')
+      const keys = rows[0].split(',')
+      console.log(keys, rows.slice(1).map(row => row.split(',')))
+      const values = rows.slice(1).map(row => {
+        const obj = {}
+        row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).forEach((v, i) => {
+          //去掉两边的"
+          obj[keys[i]] = v.trim().replace(/^"|"$/g, '')
+        })
+        return obj
+      }).filter(item => item.id)
+      // console.log(values)
+      //移除不需要的key
+      values.forEach(item => {
+        item.group_id = parseInt(item.group_id)
+        Object.keys(item).forEach(key => {
+          if (!canKeys.includes(key)) {
+            delete item[key]
+          }
+        })
+      })
+      console.log(values)
+      const pa = []
+      values.map(item => {
+        pa.push(create(item))
+      })
+      const res = await Promise.all(pa).catch(_ => false)
+      if (res) {
+        ElMessage.success(T('OperationSuccess'))
+        getList()
+      }
+
+    }
+    reader.readAsText(file)
+    return false
+  }
+  const toImport = () => {
+    ElMessage.warning('暂未实现')
   }
 
   const ABFormVisible = ref(false)

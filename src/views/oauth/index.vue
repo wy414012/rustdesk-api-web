@@ -14,6 +14,8 @@
         <el-table-column prop="op" :label="T('IdP')" align="center"/>
         <el-table-column prop="oauth_type" :label="T('Type')" align="center"/>
         <el-table-column prop="auto_register" :label="T('AutoRegister')" align="center"/>
+        <el-table-column prop="pkce_enable" :label="T('PkceEnable')" align="center"/>
+        <el-table-column prop="pkce_method" :label="T('PkceMethod')" align="center"/>
         <el-table-column prop="created_at" :label="T('CreatedAt')" align="center"/>
         <el-table-column prop="updated_at" :label="T('UpdatedAt')" align="center"/>
         <el-table-column :label="T('Actions')" align="center">
@@ -49,7 +51,7 @@
           <el-input v-model="formData.issuer" :placeholder="`${T('Check your IdP docs, without')} '/.well-known/openid-configuration'`"></el-input>
         </el-form-item>
         <el-form-item v-show="formData.oauth_type === 'oidc'" label="Scopes" prop="scopes">
-          <el-input v-model="formData.scopes" :placeholder="`${T('Optional, default is')} 'openid,profile,email'`" ></el-input>
+          <el-input v-model="formData.scopes" :placeholder="`${T('Optional, default is')} 'openid,profile,email'`"></el-input>
         </el-form-item>
         <el-form-item label="ClientId" prop="client_id">
           <el-input v-model="formData.client_id"></el-input>
@@ -59,6 +61,19 @@
         </el-form-item>
         <el-form-item label="RedirectUrl" prop="redirect_url">
           <el-input v-model="formData.redirect_url"></el-input>
+        </el-form-item>
+        <el-form-item label="PkceEnable" prop="pkce_enable">
+          <el-switch v-model="formData.pkce_enable"
+                     :active-value="true"
+                     :inactive-value="false">
+          </el-switch>
+        </el-form-item>
+
+        <el-form-item v-if="formData.pkce_enable" label="PkceMethod" prop="pkce_method">
+          <el-select v-model="formData.pkce_method" placeholder="Select PKCE Method">
+            <el-option label="S256 (Recommended)" value="S256"></el-option>
+            <el-option label="Plain" value="plain"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item :label="T('AutoRegister')" prop="auto_register">
           <el-switch v-model="formData.auto_register"
@@ -92,7 +107,7 @@
   const types = [
     { value: 'github', label: 'GitHub' },
     { value: 'google', label: 'Google' },
-    { value: 'oidc',   label: 'OIDC'   }
+    { value: 'oidc', label: 'OIDC' },
   ]
   const getList = async () => {
     listRes.loading = true
@@ -145,6 +160,8 @@
     redirect_url: '',
     scopes: '',
     auto_register: false,
+    pkce_enable: false,
+    pkce_method: 'S256',
   })
   const rules = {
     client_id: [{ required: true, message: T('ParamRequired', { param: 'client_id' }), trigger: 'blur' }],
@@ -152,6 +169,20 @@
     redirect_url: [{ required: true, message: T('ParamRequired', { param: 'redirect_url' }), trigger: 'blur' }],
     oauth_type: [{ required: true, message: T('ParamRequired', { param: 'oauth_type' }), trigger: 'blur' }],
     issuer: [{ required: true, message: T('ParamRequired', { param: 'issuer' }), trigger: 'blur' }],
+    pkce_method: [
+      { required: false, message: T('ParamRequired', { param: 'pkce_method' }), trigger: 'blur' },
+      {
+        validator: (rule, value, callback) => {
+          const allowedValues = ['S256', 'plain']
+          if (!allowedValues.includes(value)) {
+            callback(new Error(T('InvalidParam', { param: 'pkce_method' })))
+          } else {
+            callback() // 校验通过
+          }
+        },
+        trigger: 'change',
+      },
+    ],
   }
   const toEdit = (row) => {
     formVisible.value = true
@@ -164,7 +195,8 @@
     formData.redirect_url = row.redirect_url
     formData.scopes = row.scopes
     formData.auto_register = row.auto_register
-
+    formData.pkce_enable = row.pkce_enable
+    formData.pkce_method = row.pkce_method
   }
   const toAdd = () => {
     formVisible.value = true
@@ -177,6 +209,8 @@
     formData.redirect_url = ''
     formData.scopes = ''
     formData.auto_register = false
+    formData.pkce_enable = false
+    formData.pkce_method = 'S256'
   }
   const form = ref(null)
   const submit = async () => {

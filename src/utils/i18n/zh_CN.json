@@ -446,6 +446,9 @@
   "NewPassword": {
     "One": "新密码"
   },
+  "NewPasswordEqualOldPassword": {
+    "One": "New Password cannot be the same as Old Password"
+  },
   "ConfirmPassword": {
     "One": "确认密码"
   },
@@ -526,5 +529,20 @@
   },
   "DeviceGroupManage": {
     "One": "设备组管理"
+  },
+  "Import": {
+    "One": "导入"
+  },
+  "Drop file here or click to upload": {
+    "One": "将文件拖到此处或单击上传"
+  },
+  "Please upload csv file": {
+    "One": "请上传csv文件"
+  },
+  "Columns": {
+    "One": "列"
+  },
+  "You can reference export file": {
+    "One": "您可以参考导出文件"
   }
 }

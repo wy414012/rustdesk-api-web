@@ -439,6 +439,15 @@
   "LastOnlineIp": {
     "One": "Last Online Ip"
   },
+  "OldPassword": {
+    "One": "Old Password"
+  },
+  "NewPasswordEqualOldPassword": {
+    "One": "New Password cannot be the same as Old Password"
+  },
+  "NewPassword": {
+    "One": "New Password"
+  },
   "ConfirmPassword": {
     "One": "Confirm Password"
   },
@@ -507,5 +516,17 @@
   },
   "DeviceGroupManage": {
     "One": "Device Group Manage"
+  },
+  "Drop file here or click to upload": {
+    "One": "Drop file here or click to upload"
+  },
+  "Please upload csv file": {
+    "One": "Please upload csv file"
+  },
+  "Columns": {
+    "One": "Columns"
+  },
+  "You can reference export file": {
+    "One": "You can reference export file"
   }
 }

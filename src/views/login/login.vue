@@ -78,6 +78,7 @@
     password: '',
     platform: platform,
     captcha: '',
+    captcha_id: ''
   })
 
   const captchaCode = ref('')
@@ -87,6 +88,7 @@
     if (!res.code) {
       ElMessage.success(T('LoginSuccess'))
       router.push({ path: redirect || '/', replace: true })
+      return
     }
     if (res.code === 110) {
       // need captcha
@@ -98,6 +100,7 @@
     const captchaRes = await captcha().catch(_ => false)
     console.log(captchaRes)
     captchaCode.value = captchaRes.data.captcha
+    form.captcha_id = captchaRes.data.captcha.id
   }
 
   const handleOIDCLogin = (provider) => {

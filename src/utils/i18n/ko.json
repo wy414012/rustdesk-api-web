@@ -425,6 +425,15 @@
   "LastOnlineIp": {
     "One": "마지막 온라인 IP"
   },
+  "OldPassword": {
+    "One": "이전 비밀번호"
+  },
+  "NewPasswordEqualOldPassword": {
+    "One": "새 비밀번호는 이전 비밀번호와 같을 수 없습니다"
+  },
+  "NewPassword": {
+    "One": "새 비밀번호"
+  },
   "ConfirmPassword": {
     "One": "비밀번호 확인"
   },
@@ -493,5 +502,17 @@
   },
   "Result": {
     "One": "결과"
+  },
+  "Drop file here or click to upload": {
+    "One": "여기에 파일을 드롭하거나 클릭하여 업로드하십시오"
+  },
+  "Please upload csv file": {
+    "One": "csv 파일을 업로드하십시오"
+  },
+  "Columns": {
+    "One": "열"
+  },
+  "You can reference export file": {
+    "One": "내보내기 파일을 참조할 수 있습니다"
   }
 }

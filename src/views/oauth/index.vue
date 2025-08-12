@@ -37,7 +37,7 @@
     </el-card>
     <el-dialog v-model="formVisible" :title="!formData.id?T('Create') :T('Update')" width="800">
       <el-form class="dialog-form" ref="form" :model="formData" :rules="rules" label-width="120px">
-        <el-form-item label="Type" prop="">
+        <el-form-item label="Type" prop="oauth_type">
           <el-radio-group v-model="formData.oauth_type" :disabled="!!formData.id">
             <el-radio v-for="item in types" :key="item.value" :value="item.value" style="display: block">
               {{ item.label }}
@@ -57,11 +57,20 @@
           <el-input v-model="formData.client_id"></el-input>
         </el-form-item>
         <el-form-item label="ClientSecret" prop="client_secret">
-          <el-input v-model="formData.client_secret"></el-input>
+          <el-input
+              v-model="formData.client_secret"
+              :type="formData.id ? 'password' : 'text'"
+              :show-password="!formData.id"
+          >
+          </el-input>
         </el-form-item>
-<!--        <el-form-item label="RedirectUrl" prop="redirect_url">
-          <el-input v-model="formData.redirect_url"></el-input>
-        </el-form-item>-->
+        <el-form-item label="RedirectUrl" prop="redirect_url">
+          <div @click="copyRedirectUrl">{{ defaultRedirect() }}
+            <el-icon>
+              <CopyDocument></CopyDocument>
+            </el-icon>
+          </div>
+        </el-form-item>
         <el-form-item label="PkceEnable" prop="pkce_enable">
           <el-switch v-model="formData.pkce_enable"
                      :active-value="true"
@@ -96,6 +105,15 @@
   import { list, create, update, detail, remove } from '@/api/oauth'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { T } from '@/utils/i18n'
+  import { handleClipboard } from '@/utils/clipboard'
+  import { useAppStore } from '@/store/app'
+  import { CopyDocument } from '@element-plus/icons'
+
+  const app = useAppStore()
+
+  const copyRedirectUrl = (e) => {
+    handleClipboard(defaultRedirect(), e)
+  }
 
   const listRes = reactive({
     list: [], total: 0, loading: false,
@@ -167,7 +185,7 @@
   const rules = {
     client_id: [{ required: true, message: T('ParamRequired', { param: 'client_id' }), trigger: 'blur' }],
     client_secret: [{ required: true, message: T('ParamRequired', { param: 'client_secret' }), trigger: 'blur' }],
-    redirect_url: [{ required: true, message: T('ParamRequired', { param: 'redirect_url' }), trigger: 'blur' }],
+    // redirect_url: [{ required: true, message: T('ParamRequired', { param: 'redirect_url' }), trigger: 'blur' }],
     oauth_type: [{ required: true, message: T('ParamRequired', { param: 'oauth_type' }), trigger: 'blur' }],
     issuer: [{ required: true, message: T('ParamRequired', { param: 'issuer' }), trigger: 'blur' }],
     pkce_method: [
@@ -185,6 +203,11 @@
       },
     ],
   }
+
+  const defaultRedirect = () => {
+    return `${app.setting.rustdeskConfig.api_server || window.location.origin}/api/oidc/callback`
+  }
+
   const toEdit = (row) => {
     formVisible.value = true
     formData.id = row.id
@@ -193,7 +216,7 @@
     formData.issuer = row.issuer
     formData.client_id = row.client_id
     formData.client_secret = row.client_secret
-    formData.redirect_url = row.redirect_url
+    // formData.redirect_url = row.redirect_url || defaultRedirect()
     formData.scopes = row.scopes
     formData.auto_register = row.auto_register
     formData.pkce_enable = row.pkce_enable
@@ -207,7 +230,7 @@
     formData.issuer = ''
     formData.client_id = ''
     formData.client_secret = ''
-    formData.redirect_url = ''
+    // formData.redirect_url = defaultRedirect()
     formData.scopes = ''
     formData.auto_register = false
     formData.pkce_enable = false
